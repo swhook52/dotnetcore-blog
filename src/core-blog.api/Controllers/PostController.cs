@@ -56,5 +56,19 @@ namespace ExampleCoreApi.Controllers
                 return new BadRequestResult();
             }
         }
+
+        [HttpPut("{id}")]
+        public IActionResult Put(string id, [FromBody]Post post)
+        {
+            try
+            {
+                var editedPost = _postService.Update(id, post);
+                return new OkObjectResult(editedPost);
+            }
+            catch (Exception)
+            {
+                return new BadRequestResult();
+            }
+        }
     }
 }

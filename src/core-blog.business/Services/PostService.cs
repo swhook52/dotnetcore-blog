@@ -70,6 +70,41 @@ namespace Business.Services
             };
         }
 
+        public Dto.Post Update(string existingSlug, Dto.Post post)
+        {
+            var oldSlug = existingSlug?.ToLowerInvariant().Trim();
+            var newSlug = post.Slug?.ToLowerInvariant().Trim();
+
+            var existingPost = _context.Posts.SingleOrDefault(p => p.Slug == oldSlug);
+            if (existingPost == null)
+                throw new PostNotFoundException(oldSlug);
+
+            // If the slug is changing, make sure it's still unique
+            if (oldSlug != newSlug && _context.Posts.Any(p => p.Slug == newSlug))
+                throw new DuplicatePostException(newSlug);
+
+            existingPost.Slug = newSlug;
+            existingPost.Body = post.Body;
+            existingPost.DatePublished = post.DatePublished;
+            existingPost.IsFeatured = post.IsFeatured;
+            existingPost.IsStatic = post.IsStatic;
+            existingPost.Title = post.Title;
+
+            _context.SaveChanges();
+
+            return new Dto.Post
+            {
+                Slug = existingPost.Slug,
+                Body = existingPost.Body,
+                DateCreated = existingPost.DateCreated,
+                DatePublished = existingPost.DatePublished,
+                IsFeatured = existingPost.IsFeatured,
+                IsStatic = existingPost.IsStatic,
+                Title = existingPost.Title,
+                Status = existingPost.DatePublished == null ? Dto.PostStatus.Draft : Dto.PostStatus.Published
+            };
+        }
+
         public IEnumerable<Dto.Post> GetAll()
         {
             return _context.Posts.Select(post => new Dto.Post
