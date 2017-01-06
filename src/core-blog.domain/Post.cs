@@ -1,10 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Domain
 {
     public class Post
     {
+        public Post()
+        {
+        }
+
         [Key]
         public int Id { get; set; }
         [Required]
@@ -15,5 +20,7 @@ namespace Domain
         public bool IsFeatured { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime? DatePublished { get; set; }
+
+        public List<Comment> Comments {get;set;}
     }
 }
