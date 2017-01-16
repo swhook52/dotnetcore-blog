@@ -16,13 +16,6 @@ namespace ExampleCoreApi.Controllers
             _postService = postService;
         }
 
-        [HttpGet]
-        public IActionResult Get()
-        {
-            var posts = _postService.GetAll();
-            return new ObjectResult(posts);
-        }
-
         [HttpGet("{id}")]
         public IActionResult Get(string id)
         {

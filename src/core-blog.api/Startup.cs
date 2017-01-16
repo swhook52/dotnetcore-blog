@@ -44,6 +44,8 @@ namespace core_blog.api
             loggerFactory.AddDebug();
 
             app.UseMvc();
+
+            Domain.Startup.ConfigureServices(app);
         }
     }
 }

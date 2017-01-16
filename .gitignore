@@ -275,3 +275,5 @@ __pycache__/
 # tools/
 
 appsettings.secrets.json
+/src/core-blog.api/Properties/PublishProfiles/blog-api - Web Deploy-publish.ps1
+/src/core-blog.api/Properties/PublishProfiles/

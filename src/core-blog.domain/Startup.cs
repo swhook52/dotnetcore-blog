@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +14,16 @@ namespace Domain
             services
                 .AddEntityFramework()
                 .AddDbContext<BloggingContext>(p => p.UseSqlServer(configuration["ConnectionStrings:BlogConnectionString"]));
+        }
+
+        public static void ConfigureServices(IApplicationBuilder app)
+        {
+            // Migrate the database to the latest version automatically on application startup
+            var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
+            using (var serviceScope = serviceScopeFactory.CreateScope())
+            {
+                serviceScope.ServiceProvider.GetService<BloggingContext>().Database.Migrate();
+            }
         }
     }
 }

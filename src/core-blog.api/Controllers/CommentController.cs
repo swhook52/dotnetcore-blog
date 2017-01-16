@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Domain.Exceptions;
 using Business.Services;
-
-// For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace core_blog.api.Controllers
 {
@@ -20,7 +15,6 @@ namespace core_blog.api.Controllers
             _commentService = commentService;
         }
 
-        // GET api/values/5
         [HttpGet("{id}")]
         public IActionResult Get(Guid id)
         {
@@ -35,7 +29,6 @@ namespace core_blog.api.Controllers
             }
         }
 
-        // POST api/values
         [HttpPost("{postId}")]
         public IActionResult Post(string postId, [FromBody]Dto.Comment comment)
         {
