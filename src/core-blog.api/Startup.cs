@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Business.Services;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace core_blog.api
 {
@@ -31,7 +32,12 @@ namespace core_blog.api
         {
             // Add framework services.
             services.AddMvc();
-
+            services.AddCors();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "Core Blog API", Version = "v1" });
+            });
+            
             Domain.Startup.ConfigureServices(services, Configuration);
             services.AddScoped<IPostService, PostService>();
             services.AddScoped<ICommentService, CommentService>();
@@ -44,6 +50,13 @@ namespace core_blog.api
             loggerFactory.AddDebug();
 
             app.UseMvc();
+            app.UseCors(builder => builder.WithOrigins("*"));
+
+            app.UseSwagger();
+            app.UseSwaggerUi(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Core Blog API V1");
+            });
 
             Domain.Startup.ConfigureServices(app);
         }

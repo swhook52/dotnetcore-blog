@@ -9,5 +9,7 @@ namespace Business.Services
         Post Create(Post post);
         Post Update(string slug, Post post);
         IEnumerable<Post> GetAll();
+        void Delete(string slug);
+        void DeleteAll();
     }
 }

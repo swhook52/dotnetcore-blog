@@ -13,7 +13,15 @@ namespace core_blog.api.Controllers
         {
             _commentService = commentService;
         }
-        
+
+        [AcceptVerbs("OPTIONS")]
+        public IActionResult Options()
+        {
+            Response.Headers.Add("Access-Control-Allow-Origin", "*");
+            Response.Headers.Add("Access-Control-Allow-Methods", "GET");
+            return new StatusCodeResult(200);
+        }
+
         [HttpGet("{postId}")]
         public IActionResult Get(string postId)
         {

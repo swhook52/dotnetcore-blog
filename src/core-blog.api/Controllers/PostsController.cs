@@ -13,11 +13,26 @@ namespace core_blog.api.Controllers
             _postService = postService;
         }
 
+        [AcceptVerbs("OPTIONS")]
+        public IActionResult Options()
+        {
+            Response.Headers.Add("Access-Control-Allow-Origin", "*");
+            Response.Headers.Add("Access-Control-Allow-Methods", "GET");
+            return new StatusCodeResult(200);
+        }
+
         [HttpGet]
         public IActionResult Get()
         {
             var posts = _postService.GetAll();
             return new OkObjectResult(posts);
+        }
+
+        [HttpDelete]
+        public IActionResult Delete()
+        {
+            _postService.DeleteAll();
+            return new NoContentResult();
         }
     }
 }

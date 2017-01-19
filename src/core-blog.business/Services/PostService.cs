@@ -119,5 +119,26 @@ namespace Business.Services
                 Status = post.DatePublished == null ? Dto.PostStatus.Draft : Dto.PostStatus.Published
             });
         }
+
+        public void Delete(string slug)
+        {
+            var existingPost = _context.Posts.SingleOrDefault(p => p.Slug == slug);
+            if (existingPost == null)
+                throw new PostNotFoundException(slug);
+
+            _context.Posts.Remove(existingPost);
+            _context.SaveChanges();
+        }
+
+        public void DeleteAll()
+        {
+            var posts = _context.Posts;
+            foreach (var post in posts)
+            {
+                _context.Posts.Remove(post);
+            }
+
+            _context.SaveChanges();
+        }
     }
 }

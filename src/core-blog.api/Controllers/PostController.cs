@@ -16,6 +16,14 @@ namespace ExampleCoreApi.Controllers
             _postService = postService;
         }
 
+        [AcceptVerbs("OPTIONS")]
+        public IActionResult Options()
+        {
+            Response.Headers.Add("Access-Control-Allow-Origin", "*");
+            Response.Headers.Add("Access-Control-Allow-Methods", "GET,POST,PUT");
+            return new StatusCodeResult(200);
+        }
+
         [HttpGet("{id}")]
         public IActionResult Get(string id)
         {
@@ -62,6 +70,21 @@ namespace ExampleCoreApi.Controllers
             {
                 return new BadRequestResult();
             }
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(string id)
+        {
+            try
+            {
+                _postService.Delete(id);
+                return new NoContentResult();
+            }
+            catch (Exception)
+            {
+                return new BadRequestResult();
+            }
+
         }
     }
 }
