@@ -3,6 +3,7 @@ using Dto;
 using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using AutoMapper;
 
 namespace ExampleCoreApi.Controllers
 {
@@ -10,10 +11,12 @@ namespace ExampleCoreApi.Controllers
     public class PostController : Controller
     {
         private readonly IPostService _postService;
+        private readonly IMapper _mapper;
 
-        public PostController(IPostService postService)
+        public PostController(IPostService postService, IMapper mapper)
         {
             _postService = postService;
+            _mapper = mapper;
         }
 
         [AcceptVerbs("OPTIONS")]
@@ -30,7 +33,8 @@ namespace ExampleCoreApi.Controllers
             try
             {
                 var post = _postService.Get(id);
-                return new ObjectResult(post);
+                var dto = _mapper.Map<Domain.Post, Post>(post);
+                return new ObjectResult(dto);
             }
             catch (PostNotFoundException)
             {
@@ -46,7 +50,9 @@ namespace ExampleCoreApi.Controllers
                 var createdPost = _postService.Create(post);
                 var location = Url.RouteUrl(new { Action = "Get", Controller = "Post", id = createdPost.Slug });
 
-                return new CreatedResult(location, createdPost);
+                var dto = _mapper.Map<Domain.Post, Post>(createdPost);
+
+                return new CreatedResult(location, dto);
             }
             catch (DuplicatePostException e)
             {
@@ -64,7 +70,9 @@ namespace ExampleCoreApi.Controllers
             try
             {
                 var editedPost = _postService.Update(id, post);
-                return new OkObjectResult(editedPost);
+                var dto = _mapper.Map<Domain.Post, Post>(editedPost);
+
+                return new OkObjectResult(dto);
             }
             catch (Exception)
             {

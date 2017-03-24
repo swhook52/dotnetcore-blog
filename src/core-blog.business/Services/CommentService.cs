@@ -15,22 +15,16 @@ namespace Business.Services
             _context = context;
         }
 
-        public Dto.Comment Get(Guid id)
+        public Comment Get(Guid id)
         {
             var comment = _context.Comments.SingleOrDefault(p => p.Id == id);
             if (comment == null)
                 throw new CommentNotFoundException(id);
 
-            return new Dto.Comment
-            {
-                Id = comment.Id,
-                Name = comment.Name,
-                Message = comment.Message,
-                DateCreated = comment.DateCreated
-            };
+            return comment;
         }
 
-        public Dto.Comment Create(string postId, Dto.Comment comment)
+        public Comment Create(string postId, Dto.Comment comment)
         {
             var post = _context.Posts.SingleOrDefault(p => p.Slug == postId);
             if (post == null)
@@ -49,17 +43,10 @@ namespace Business.Services
             _context.Comments.Add(newComment);
             _context.SaveChanges();
 
-            return new Dto.Comment
-            {
-                Id = newComment.Id,
-                Name = newComment.Name,
-                Message = newComment.Message,
-                Email = newComment.Email,
-                DateCreated = newComment.DateCreated
-            };
+            return newComment;
         }
 
-        public Dto.Comment Update(Guid commentId, Dto.Comment comment)
+        public Comment Update(Guid commentId, Dto.Comment comment)
         {
             var existingComment = _context.Comments.SingleOrDefault(p => p.Id == commentId);
             if (existingComment == null)
@@ -69,16 +56,10 @@ namespace Business.Services
 
             _context.SaveChanges();
 
-            return new Dto.Comment
-            {
-                Id = existingComment.Id,
-                Name = existingComment.Name,
-                Message = existingComment.Message,
-                DateCreated = existingComment.DateCreated
-            };
+            return existingComment;
         }
 
-        public Dto.Comment[] GetAll(string postSlug)
+        public Comment[] GetAll(string postSlug)
         {
             var post = _context.Posts
                 .Include(p => p.Comments)
@@ -86,13 +67,7 @@ namespace Business.Services
             if (post == null)
                 throw new PostNotFoundException(postSlug);
 
-            return post.Comments.Select(comment => new Dto.Comment
-            {
-                Id = comment.Id,
-                Name = comment.Name,
-                Message = comment.Message,
-                DateCreated = comment.DateCreated
-            }).OrderBy(p => p.DateCreated).ToArray();
+            return post.Comments.OrderBy(p => p.DateCreated).ToArray();
         }
 
         public void Remove(Guid id)

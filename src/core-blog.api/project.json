@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "AutoMapper": "6.0.2",
+    "AutoMapper.Extensions.Microsoft.DependencyInjection": "2.0.0",
     "core-blog.business": "1.0.0-*",
     "core-blog.domain": "1.0.0-*",
     "core-blog.dto": "1.0.0-*",

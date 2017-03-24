@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Domain.Exceptions;
 using Business.Services;
 
@@ -7,11 +8,13 @@ namespace core_blog.api.Controllers
     [Route("api/[controller]")]
     public class CommentsController : Controller
     {
-        private ICommentService _commentService;
+        private readonly ICommentService _commentService;
+        private readonly IMapper _mapper;
 
-        public CommentsController(ICommentService commentService)
+        public CommentsController(ICommentService commentService, IMapper mapper)
         {
             _commentService = commentService;
+            _mapper = mapper;
         }
 
         [AcceptVerbs("OPTIONS")]
@@ -28,7 +31,9 @@ namespace core_blog.api.Controllers
             try
             {
                 var comments = _commentService.GetAll(postId);
-                return new OkObjectResult(comments);
+
+                var dtos = _mapper.Map<Domain.Comment[], Dto.Comment[]>(comments);
+                return new OkObjectResult(dtos);
             }
             catch (PostNotFoundException)
             {

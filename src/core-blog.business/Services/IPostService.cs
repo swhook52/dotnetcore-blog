@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
-using Dto;
 
 namespace Business.Services
 {
     public interface IPostService
     {
-        Post Get(string slug);
-        Post Create(Post post);
-        Post Update(string slug, Post post);
-        IEnumerable<Post> GetAll();
+        Domain.Post Get(string slug);
+        Domain.Post Create(Dto.Post post);
+        Domain.Post Update(string slug, Dto.Post post);
+        IEnumerable<Domain.Post> GetAll();
         void Delete(string slug);
         void DeleteAll();
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Domain.Exceptions;
 using Business.Services;
@@ -8,11 +9,13 @@ namespace core_blog.api.Controllers
     [Route("api/[controller]")]
     public class CommentController : Controller
     {
-        private ICommentService _commentService;
+        private readonly ICommentService _commentService;
+        private readonly IMapper _mapper;
 
-        public CommentController(ICommentService commentService)
+        public CommentController(ICommentService commentService, IMapper mapper)
         {
             _commentService = commentService;
+            _mapper = mapper;
         }
 
         [AcceptVerbs("OPTIONS")]
@@ -28,8 +31,10 @@ namespace core_blog.api.Controllers
         {
             try
             {
-                var comments = _commentService.Get(id);
-                return new OkObjectResult(comments);
+                var comment = _commentService.Get(id);
+
+                var dto = _mapper.Map<Domain.Comment, Dto.Comment>(comment);
+                return new OkObjectResult(dto);
             }
             catch (PostNotFoundException)
             {
@@ -45,7 +50,8 @@ namespace core_blog.api.Controllers
                 var createdComment = _commentService.Create(postId, comment);
                 var location = Url.RouteUrl(new { Action = "Get", Controller = "Comment", id = createdComment.Id });
 
-                return new CreatedResult(location, createdComment);
+                var dto = _mapper.Map<Domain.Comment, Dto.Comment>(createdComment);
+                return new CreatedResult(location, dto);
             }
             catch (DuplicatePostException e)
             {
@@ -66,7 +72,9 @@ namespace core_blog.api.Controllers
             try
             {
                 var editedComment = _commentService.Update(id, comment);
-                return new OkObjectResult(editedComment);
+
+                var dto = _mapper.Map<Domain.Comment, Dto.Comment>(editedComment);
+                return new OkObjectResult(dto);
             }
             catch (Exception)
             {

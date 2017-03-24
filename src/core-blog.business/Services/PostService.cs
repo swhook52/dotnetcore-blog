@@ -15,26 +15,16 @@ namespace Business.Services
             _context = context;
         }
 
-        public Dto.Post Get(string slug)
+        public Post Get(string slug)
         {
             var post = _context.Posts.SingleOrDefault(p => p.Slug.ToLower() == slug.ToLower());
             if (post == null)
                 throw new PostNotFoundException(slug);
 
-            return new Dto.Post
-            {
-                Slug = post.Slug,
-                Body = post.Body,
-                DateCreated = post.DateCreated,
-                DatePublished = post.DatePublished,
-                IsFeatured = post.IsFeatured,
-                IsStatic = post.IsStatic,
-                Title = post.Title,
-                Status = post.DatePublished == null ? Dto.PostStatus.Draft : Dto.PostStatus.Published
-            };
+            return post;
         }
 
-        public Dto.Post Create(Dto.Post post)
+        public Post Create(Dto.Post post)
         {
             var slug = post.Slug?.ToLowerInvariant().Trim();
             if (string.IsNullOrEmpty(slug))
@@ -57,20 +47,10 @@ namespace Business.Services
             _context.Posts.Add(newPost);
             _context.SaveChanges();
 
-            return new Dto.Post
-            {
-                Slug = newPost.Slug,
-                Body = newPost.Body,
-                DateCreated = newPost.DateCreated,
-                DatePublished = newPost.DatePublished,
-                IsFeatured = newPost.IsFeatured,
-                IsStatic = newPost.IsStatic,
-                Title = newPost.Title,
-                Status = newPost.DatePublished == null ? Dto.PostStatus.Draft : Dto.PostStatus.Published
-            };
+            return newPost;
         }
 
-        public Dto.Post Update(string existingSlug, Dto.Post post)
+        public Post Update(string existingSlug, Dto.Post post)
         {
             var oldSlug = existingSlug?.ToLowerInvariant().Trim();
             var newSlug = post.Slug?.ToLowerInvariant().Trim();
@@ -92,32 +72,12 @@ namespace Business.Services
 
             _context.SaveChanges();
 
-            return new Dto.Post
-            {
-                Slug = existingPost.Slug,
-                Body = existingPost.Body,
-                DateCreated = existingPost.DateCreated,
-                DatePublished = existingPost.DatePublished,
-                IsFeatured = existingPost.IsFeatured,
-                IsStatic = existingPost.IsStatic,
-                Title = existingPost.Title,
-                Status = existingPost.DatePublished == null ? Dto.PostStatus.Draft : Dto.PostStatus.Published
-            };
+            return existingPost;
         }
 
-        public IEnumerable<Dto.Post> GetAll()
+        public IEnumerable<Post> GetAll()
         {
-            return _context.Posts.Select(post => new Dto.Post
-            {
-                Slug = post.Slug,
-                Body = post.Body,
-                DateCreated = post.DateCreated,
-                DatePublished = post.DatePublished,
-                IsFeatured = post.IsFeatured,
-                IsStatic = post.IsStatic,
-                Title = post.Title,
-                Status = post.DatePublished == null ? Dto.PostStatus.Draft : Dto.PostStatus.Published
-            });
+            return _context.Posts;
         }
 
         public void Delete(string slug)

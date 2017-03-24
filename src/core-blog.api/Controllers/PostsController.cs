@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq;
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Business.Services;
 
 namespace core_blog.api.Controllers
@@ -7,10 +9,12 @@ namespace core_blog.api.Controllers
     public class PostsController : Controller
     {
         private readonly IPostService _postService;
+        private readonly IMapper _mapper;
 
-        public PostsController(IPostService postService)
+        public PostsController(IPostService postService, IMapper mapper)
         {
             _postService = postService;
+            _mapper = mapper;
         }
 
         [AcceptVerbs("OPTIONS")]
@@ -24,8 +28,9 @@ namespace core_blog.api.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var posts = _postService.GetAll();
-            return new OkObjectResult(posts);
+            var posts = _postService.GetAll().ToArray();
+            var dtos = _mapper.Map<Domain.Post[], Dto.Post[]>(posts);
+            return new OkObjectResult(dtos);
         }
 
         [HttpDelete]
