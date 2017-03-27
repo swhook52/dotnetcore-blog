@@ -9,11 +9,11 @@ I chose the subject matter of a blog half because I'm mocking the getting starte
 I chose SQL Server as a database provider simply out of convenience. I'd like to perhaps create a branch that uses DocumentDB in Azure as well.
  
 ## Current Versions
-`Microsoft.NETCore.App: "1.1.0"`
+`Microsoft.NETCore.App: "1.1.1"`
 
 `NETStandard.Library": "1.6.1`
 
-`Microsoft.EntityFrameworkCore: "1.1.0"`
+`Microsoft.EntityFrameworkCore: "1.1.1"`
 
 
 ## Real World Uses
@@ -25,7 +25,7 @@ This repository shows examples of:
  - Entity Framework migrations
  - Decoupling Entity Framework core from clients
  - Using appsettings secrets to hide connection strings and sensitive data
- - AutoMapper _[coming soon]_
+ - AutoMapper to make domain entities to safer data transfer objects
  - Unit testing projects _[coming soon]_
 
 
