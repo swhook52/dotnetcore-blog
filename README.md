@@ -17,12 +17,10 @@ I chose SQL Server as a database provider simply out of convenience. I'd like to
 
 
 ## Real World Uses
-
 This repository shows examples of:
 
  - Returning proper HTTP Status code responses from aspnetcore Web API
- - Entity Framework Core
- - Entity Framework migrations
+ - Entity Framework Core with first migrations
  - Decoupling Entity Framework core from clients
  - Using appsettings secrets to hide connection strings and sensitive data
  - AutoMapper to make domain entities to safer data transfer objects
@@ -45,8 +43,6 @@ The Data transfer objects project is meant to create a simple model for the call
 
 ## Running the Example
 First, you'll need the correct version of the dotnet sdk. You can get that here: [https://www.microsoft.com/net/download/core#/current](https://www.microsoft.com/net/download/core#/current). Be careful to be on the right tab. There is an 'LTS' (Long Term Support) tab that typically has an older version of the SDK. You want to look at the 'Latest' tab. I'm using the `.NET Core 1.0.3 SDK - Installer x64` and the `Visual Studio 2015 Tools (Preview 2) x64`.
-
-In Windows, once you have the SDK, take a look at the folders in `C:\Program Files\dotnet\sdk` and make sure the latest version matches what is in the `global.json` SDK version.
 
 Next, you'll need to create your secret appsettings file. As shown in `core-blob.api\Startup.cs`, you will need an `appsettings.secrets.json` file in your API root (right next to the existing `appsettings.json` for the API). This will hold your connection string for your database. You can look at `appsettings.json` to see the format that you need to use, but it should look something like this, depending on your connection, mine is using a local database.
 

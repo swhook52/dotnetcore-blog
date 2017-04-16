@@ -1,22 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B935EB1E-EA8B-4307-B881-D5ADB6A8DADB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7839F6C6-CF3D-4E1B-A201-26E13C3E5473}"
 	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
+		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "core-blog.api", "src\core-blog.api\core-blog.api.xproj", "{8E5D2FFE-95E1-43E9-85D4-4EA2D4ACD2AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "core-blog.api", "src\core-blog.api\core-blog.api.csproj", "{8E5D2FFE-95E1-43E9-85D4-4EA2D4ACD2AF}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "core-blog.domain", "src\core-blog.domain\core-blog.domain.xproj", "{E40B36D9-D95C-4200-A447-FDC1D2FCCA0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "core-blog.domain", "src\core-blog.domain\core-blog.domain.csproj", "{E40B36D9-D95C-4200-A447-FDC1D2FCCA0C}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "core-blog.business", "src\core-blog.business\core-blog.business.xproj", "{8DD3CF2C-49D5-433B-B073-C3C71FF13894}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "core-blog.business", "src\core-blog.business\core-blog.business.csproj", "{8DD3CF2C-49D5-433B-B073-C3C71FF13894}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "core-blog.dto", "src\core-blog.dto\core-blog.dto.xproj", "{45F0E760-4FEA-4075-A4F0-DF0255C89742}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "core-blog.dto", "src\core-blog.dto\core-blog.dto.csproj", "{45F0E760-4FEA-4075-A4F0-DF0255C89742}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
