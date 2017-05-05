@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Domain;
 using Domain.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Business.Services
 {
@@ -17,7 +18,11 @@ namespace Business.Services
 
         public Post Get(string slug)
         {
-            var post = _context.Posts.SingleOrDefault(p => p.Slug.ToLower() == slug.ToLower());
+            var post = _context.Posts
+                .Include(p => p.PostTags)
+                .ThenInclude(pt => pt.Tag)
+                .SingleOrDefault(p => p.Slug.ToLower() == slug.ToLower());
+
             if (post == null)
                 throw new PostNotFoundException(slug);
 
@@ -44,10 +49,28 @@ namespace Business.Services
                 Title = post.Title
             };
 
+            foreach (var tagName in post.Tags)
+            {
+                newPost.PostTags.Add(new PostTag
+                {
+                    Post = newPost,
+                    Tag = GetOrCreateTag(tagName)
+                });
+            }
+
             _context.Posts.Add(newPost);
             _context.SaveChanges();
 
             return newPost;
+        }
+
+        private Tag GetOrCreateTag(string tagName)
+        {
+            var tag = _context.Tags.SingleOrDefault(p => p.Name.ToLower() == tagName.ToLower());
+            if (tag != null)
+                return tag;
+
+            return new Tag { Name = tagName };
         }
 
         public Post Update(string existingSlug, Dto.Post post)
@@ -77,7 +100,9 @@ namespace Business.Services
 
         public IEnumerable<Post> GetAll()
         {
-            return _context.Posts;
+            return _context.Posts
+                .Include(p => p.PostTags)
+                .ThenInclude(pt => pt.Tag);
         }
 
         public void Delete(string slug)

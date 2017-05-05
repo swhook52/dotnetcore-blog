@@ -12,6 +12,6 @@ namespace Dto
         public DateTime? DateCreated { get; set; }
         public DateTime? DatePublished { get; set; }
         public PostStatus Status { get; set; }
-        public Tag[] Tags { get; set; }
+        public string[] Tags { get; set; }
     }
 }

@@ -21,6 +21,7 @@ namespace Domain
         public DateTime DateCreated { get; set; }
         public DateTime? DatePublished { get; set; }
 
-        public List<Comment> Comments {get;set;}
+        public List<Comment> Comments { get; set; } = new List<Comment>();
+        public List<PostTag> PostTags { get; set; } = new List<PostTag>();
     }
 }
