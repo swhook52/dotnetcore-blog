@@ -66,7 +66,7 @@ namespace core_blog.api
             app.UseCors(builder => builder.WithOrigins("*"));
 
             app.UseSwagger();
-            app.UseSwaggerUi(c =>
+            app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Core Blog API V1");
             });

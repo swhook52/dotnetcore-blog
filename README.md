@@ -11,9 +11,13 @@ I chose SQL Server as a database provider simply out of convenience. I'd like to
 ## Current Versions
 `Microsoft.NETCore.App: "1.1.1"`
 
-`NETStandard.Library": "1.6.1`
+`Microsoft.AspNetCore: "1.1.2"`
 
-`Microsoft.EntityFrameworkCore: "1.1.1"`
+`Microsoft.AspNetCore.Mvc: "1.1.3"`
+
+`NETStandard.Library": "1.6.1"`
+
+`Microsoft.EntityFrameworkCore: "1.1.2"`
 
 
 ## Real World Uses
