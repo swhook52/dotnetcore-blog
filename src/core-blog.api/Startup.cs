@@ -9,6 +9,9 @@ using Microsoft.Extensions.Logging;
 using Business.Services;
 using Swashbuckle.AspNetCore.Swagger;
 using core_blog.api.Core;
+using Microsoft.AspNetCore.Mvc;
+using SwashbuckleAspNetVersioningShim;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 namespace core_blog.api
 {
@@ -34,10 +37,16 @@ namespace core_blog.api
         {
             // Add framework services.
             services.AddMvc();
+            services.AddMvcCore().AddVersionedApiExplorer();
             services.AddCors();
-            services.AddSwaggerGen(c =>
+            services.AddApiVersioning(p =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "Core Blog API", Version = "v1" });
+                p.AssumeDefaultVersionWhenUnspecified = true;
+                p.DefaultApiVersion = new ApiVersion(1, 0);
+            });
+            services.AddSwaggerGen(c => {
+                var provider = services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
+                c.ConfigureSwaggerVersions(provider);
             });
 
             _assemblies = new []
@@ -57,18 +66,22 @@ namespace core_blog.api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(
+            IApplicationBuilder app,
+            IHostingEnvironment env,
+            ILoggerFactory loggerFactory,
+            IApiVersionDescriptionProvider provider)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
             app.UseMvc();
             app.UseCors(builder => builder.WithOrigins("*"));
-
+            app.UseApiVersioning();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Core Blog API V1");
+                c.ConfigureSwaggerVersions(provider);
             });
 
             Domain.Startup.ConfigureServices(app);

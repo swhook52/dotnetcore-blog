@@ -7,7 +7,8 @@ using AutoMapper;
 
 namespace ExampleCoreApi.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class PostController : Controller
     {
         private readonly IPostService _postService;

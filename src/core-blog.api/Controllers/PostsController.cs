@@ -5,7 +5,8 @@ using Business.Services;
 
 namespace core_blog.api.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class PostsController : Controller
     {
         private readonly IPostService _postService;
