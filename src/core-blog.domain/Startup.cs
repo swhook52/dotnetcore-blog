@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
@@ -12,7 +11,7 @@ namespace Domain
         public static void ConfigureServices(IServiceCollection services, IConfigurationRoot configuration)
         {
             services
-                .AddEntityFramework()
+                .AddEntityFrameworkSqlServer()
                 .AddDbContext<BloggingContext>(p => p.UseSqlServer(configuration["ConnectionStrings:BlogConnectionString"]));
         }
 

@@ -10,8 +10,6 @@ using Business.Services;
 using Swashbuckle.AspNetCore.Swagger;
 using core_blog.api.Core;
 using Microsoft.AspNetCore.Mvc;
-using SwashbuckleAspNetVersioningShim;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 namespace core_blog.api
 {
@@ -37,16 +35,16 @@ namespace core_blog.api
         {
             // Add framework services.
             services.AddMvc();
-            services.AddMvcCore().AddVersionedApiExplorer();
             services.AddCors();
             services.AddApiVersioning(p =>
             {
                 p.AssumeDefaultVersionWhenUnspecified = true;
                 p.DefaultApiVersion = new ApiVersion(1, 0);
             });
-            services.AddSwaggerGen(c => {
-                var provider = services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
-                c.ConfigureSwaggerVersions(provider);
+
+            services.AddSwaggerGen(p =>
+            {
+                p.SwaggerDoc("v1", new Info { Title = "Blog API", Version = "v1" });
             });
 
             _assemblies = new []
@@ -66,14 +64,8 @@ namespace core_blog.api
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(
-            IApplicationBuilder app,
-            IHostingEnvironment env,
-            ILoggerFactory loggerFactory,
-            IApiVersionDescriptionProvider provider)
+        public void Configure(IApplicationBuilder app)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
 
             app.UseMvc();
             app.UseCors(builder => builder.WithOrigins("*"));
@@ -81,7 +73,8 @@ namespace core_blog.api
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.ConfigureSwaggerVersions(provider);
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Blog API v1");
+                c.RoutePrefix = "swagger";
             });
 
             Domain.Startup.ConfigureServices(app);

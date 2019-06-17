@@ -10,22 +10,18 @@ I chose SQL Server as a database provider simply out of convenience. I'd like to
 
 
 ## Current Versions
-`Microsoft.NETCore.App: "1.1.1"`
+`Microsoft.AspNetCore: "2.2.0"`
 
-`Microsoft.AspNetCore: "1.1.2"`
+`NETStandard.Library": "2.0.0"`
 
-`Microsoft.AspNetCore.Mvc: "1.1.3"`
-
-`NETStandard.Library": "1.6.1"`
-
-`Microsoft.EntityFrameworkCore: "1.1.2"`
+`Microsoft.EntityFrameworkCore: "2.2.4"`
 
 
 ## Real World Uses
 This repository shows examples of:
 
  - Returning proper HTTP Status code responses from aspnetcore Web API
- - Entity Framework Core with first migrations
+ - Entity Framework Core with migrations
  - Decoupling Entity Framework core from clients
  - Using appsettings secrets to hide connection strings and sensitive data
  - AutoMapper to make domain entities to safer data transfer objects
@@ -48,7 +44,7 @@ The Data transfer objects project is meant to create a simple model for the call
 
 
 ## Running the Example
-First, you'll need the correct version of the dotnet sdk. You can get that here: [https://www.microsoft.com/net/download/core#/current](https://www.microsoft.com/net/download/core#/current). Be careful to be on the right tab. There is an 'LTS' (Long Term Support) tab that typically has an older version of the SDK. You want to look at the 'Latest' tab. I'm using the `.NET Core 1.1 SDK - Installer x64` and the `Visual Studio 2017 Tools`.
+First, you'll need the correct version of the dotnet sdk. You can get that here: [https://www.microsoft.com/net/download/core#/current](https://www.microsoft.com/net/download/core#/current). Be careful to be on the right tab. There is an 'LTS' (Long Term Support) tab that typically has an older version of the SDK. You want to look at the 'Latest' tab.
 
 Next, you'll need to create your secret appsettings file. As shown in `core-blob.api\Startup.cs`, you will need an `appsettings.secrets.json` file in your API root (right next to the existing `appsettings.json` for the API). This will hold your connection string for your database. You can look at `appsettings.json` to see the format that you need to use, but it should look something like this, depending on your connection, mine is using a local database.
 
@@ -60,6 +56,14 @@ Next, you'll need to create your secret appsettings file. As shown in `core-blob
 
 Then you'll need to update your database to the current version. You can use the command prompt to update your entity framework database using `dotnet ef` or you can use the Package Manager Console (with the default project pointing to `core-blog.domain`) and run `Update-Database`. This runs all of the migrations and creates the database in its current form.
 
-Finally, you can run the API and access `/api/v1/posts` if you already have data, or `POST` to `/api/v1/post/` with a JSON model matching the DTO.
+Finally, you can run the API and access `/api/v1/posts` if you already have data, or `POST` to `/api/v1/post/` with a JSON model matching the DTO. Something like this:
+    {
+        "title": "First Post",
+        "body": "This is the first post of the blog",
+        "slug": "first-post"
+        "tags": [
+            "example"
+        ]
+    }
 
 If you have any questions or comments, feel free to contact me on twitter at [@StevenHook](https://twitter.com/stevenhook)
