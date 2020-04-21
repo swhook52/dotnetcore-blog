@@ -2,19 +2,18 @@
 
 I found it to be incredibly hard to get an example of how to use dotnetcore in a non hello world application. Outside of Getting Started tutorials people need to use real libraries and use them together to accomplish a goal. We want to pull from configuration files and we all have one off problems to deal with.
 
-I got frustrated one day when I was updating dotnetcore 1.0.0 to 1.1.0 and found it incredibly hard to find answers on how to fix it. So I decided to create a "latest dotnetcore" realistic example that uses common frameworks and patterns to see how dotnetcore really handles these situations.
+I got frustrated one day when I was updating dotnetcore 1.0.0 to 1.1.0 and found it hard to find answers on how to fix it. So I decided to create a "latest dotnetcore" realistic example that uses common frameworks and patterns to see how dotnetcore really handles these situations.
 
 I chose the subject matter of a blog half because I'm mocking the getting started tutorials I am working to explain in more detail, and half because it's a concept that most of us clearly understand.
 
-I chose SQL Server as a database provider simply out of convenience. I'd like to perhaps create a branch that uses DocumentDB in Azure as well.
-
+I chose SQL Server as a database provider simply out of convenience. I'd like to perhaps create a branch that uses a document store as well.
 
 ## Current Versions
-`Microsoft.AspNetCore: "2.2.0"`
+API TargetFramework: `netcoreapp3.1`
 
-`NETStandard.Library": "2.0.0"`
+Libraries: `netstandard2.0`
 
-`Microsoft.EntityFrameworkCore: "2.2.4"`
+`Microsoft.EntityFrameworkCore: "3.1.3"`
 
 
 ## Real World Uses
@@ -26,6 +25,7 @@ This repository shows examples of:
  - Using appsettings secrets to hide connection strings and sensitive data
  - AutoMapper to make domain entities to safer data transfer objects
  - Versioning of API controllers
+ - Autogenerating operations via swagger complete with API explorer
 
 
 ## Projects

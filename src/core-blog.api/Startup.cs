@@ -4,41 +4,79 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using core_blog.api.Core;
+using Microsoft.Extensions.PlatformAbstractions;
+using System.IO;
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 namespace core_blog.api
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public IConfigurationRoot Configuration { get; }
+        readonly string OnlyConfiguredOrigins = "_OnlyConfiguredOrigins";
+
+        public Startup(IWebHostEnvironment env)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile("appsettings.secrets.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddJsonFile("appsettings.secrets.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
-
-        public IConfigurationRoot Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc();
-            services.AddCors();
+            services.AddControllers();
+
+            var origins = Configuration.GetValue<string>("CorsOrigins").Split(";");
+            services.AddCors(options =>
+            {
+                options.AddPolicy(OnlyConfiguredOrigins,
+                builder =>
+                {
+                    builder
+                        .WithOrigins(origins)
+                        .WithMethods("GET", "POST", "PUT", "OPTIONS")
+                        .WithHeaders("Origin", "Authorization", "Content-Type");
+                });
+            });
+
             services.AddApiVersioning(p =>
             {
+                p.ReportApiVersions = true;
                 p.AssumeDefaultVersionWhenUnspecified = true;
                 p.DefaultApiVersion = new ApiVersion(1, 0);
             });
 
-            services.AddSwaggerGen(p =>
+            services.AddVersionedApiExplorer(
+                options =>
+                {
+                    // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
+                    // note: the specified format code will format the version as "'v'major[.minor][-status]"
+                    options.GroupNameFormat = "'v'VVV";
+                    options.SubstituteApiVersionInUrl = true;
+                });
+
+            // Register the Swagger generator, defining 1 or more Swagger documents
+            services.AddSwaggerGen(options =>
             {
-                p.SwaggerDoc("v1", new Info { Title = "Blog API", Version = "v1" });
+                // add a custom operation filter which sets default values
+                options.OperationFilter<SwaggerConfiguration>();
+                options.DocumentFilter<SwaggerConfiguration>();
+
+                // Set the comments path for the Swagger JSON and UI.
+                var basePath = PlatformServices.Default.Application.ApplicationBasePath;
+                var fileName = typeof(Startup).GetTypeInfo().Assembly.GetName().Name + ".xml";
+                options.IncludeXmlComments(Path.Combine(basePath, fileName));
             });
 
             var mappableAssemblies = new[]
@@ -50,25 +88,53 @@ namespace core_blog.api
             };
             services.AddAutoMapper(mappableAssemblies);
 
+            ConfigureDependencyInjection(services);
+        }
+
+        private void ConfigureDependencyInjection(IServiceCollection services)
+        {
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureBlogSwaggerOptions>();
+
             Domain.Startup.ConfigureServices(services, Configuration);
             Business.Startup.ConfigureServices(services, Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
-
-            app.UseMvc();
-            app.UseCors(builder => builder.WithOrigins("*"));
-            app.UseApiVersioning();
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
+            if (env.IsDevelopment())
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Blog API v1");
-                c.RoutePrefix = "swagger";
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+            app.UseCors(OnlyConfiguredOrigins);
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
             });
 
-            Domain.Startup.ConfigureServices(app);
+            app.UseHttpsRedirection();
+
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+            // specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(options =>
+            {
+                // build a swagger endpoint for each discovered API version
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                }
+
+                options.RoutePrefix = string.Empty;
+            });
+            Domain.Startup.Configure(app);
         }
     }
 }

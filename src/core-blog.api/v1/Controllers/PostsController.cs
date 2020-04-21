@@ -7,7 +7,9 @@ namespace core_blog.api.Controllers
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public class PostsController : Controller
+    [Produces("application/json")]
+    [ApiController]
+    public class PostsController : ControllerBase
     {
         private readonly IPostService _postService;
         private readonly IMapper _mapper;

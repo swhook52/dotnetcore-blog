@@ -15,7 +15,7 @@ namespace Domain
                 .AddDbContext<BloggingContext>(p => p.UseSqlServer(configuration["ConnectionStrings:BlogConnectionString"]));
         }
 
-        public static void ConfigureServices(IApplicationBuilder app)
+        public static void Configure(IApplicationBuilder app)
         {
             // Migrate the database to the latest version automatically on application startup
             var serviceScopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();

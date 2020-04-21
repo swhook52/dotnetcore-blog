@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Domain.Exceptions;
 using Business.Services;
 
-namespace core_blog.api.Controllers
+namespace core_blog.api.Controllers.v1
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public class CommentsController : Controller
+    [Produces("application/json")]
+    [ApiController]
+    public class CommentsController : ControllerBase
     {
         private readonly ICommentService _commentService;
         private readonly IMapper _mapper;

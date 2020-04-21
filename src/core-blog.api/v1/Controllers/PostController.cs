@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using AutoMapper;
 
-namespace ExampleCoreApi.Controllers
+namespace core_blog.api.Controllers.v1
 {
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    public class PostController : Controller
+    [Produces("application/json")]
+    [ApiController]
+    public class PostController : ControllerBase
     {
         private readonly IPostService _postService;
         private readonly IMapper _mapper;
