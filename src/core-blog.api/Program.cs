@@ -1,90 +1,133 @@
 ﻿using Domain;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System;
-
-const string onlyConfiguredOrigins = "_OnlyConfiguredOrigins";
+using System.Text.Json.Serialization;
+using Asp.Versioning;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configuration
 builder.Configuration
-                .SetBasePath(builder.Environment.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-                .AddJsonFile($"appsettings.secrets.json", optional: true, reloadOnChange: true)
-                .AddEnvironmentVariables();
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddJsonFile("appsettings.secrets.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
 
-builder.Services.AddControllers();
+// Services
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
+});
 
-var origins = builder.Configuration.GetValue<string>("CorsOrigins").Split(";");
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
+
+// CORS
+var origins = builder.Configuration.GetValue<string>("CorsOrigins")?.Split(";") ?? [];
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(onlyConfiguredOrigins,
-    builder =>
+    options.AddPolicy("OnlyConfiguredOrigins", policy =>
     {
-        builder
-            .WithOrigins(origins)
-            .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-            .WithHeaders("Origin", "Authorization", "Content-Type");
+        policy.WithOrigins(origins)
+              .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+              .WithHeaders("Origin", "Authorization", "Content-Type")
+              .AllowCredentials();
     });
 });
 
+// API Versioning
 builder.Services.AddApiVersioning(options =>
 {
-    options.ReportApiVersions = true;
-    options.AssumeDefaultVersionWhenUnspecified = true;
     options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new QueryStringApiVersionReader("version"),
+        new HeaderApiVersionReader("X-Version"));
+}).AddMvc().AddApiExplorer(setup =>
+{
+    setup.GroupNameFormat = "'v'VVV";
+    setup.SubstituteApiVersionInUrl = true;
 });
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+// OpenAPI/Swagger
+builder.Services.AddOpenApi();
 
+// AutoMapper
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies().Where(a => !a.IsDynamic));
+
+// Response Compression
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
-    options.Providers.Add<GzipCompressionProvider>();
 });
 
-var connectionString = builder.Configuration.GetValue<string>("ConnectionStrings:BlogConnectionString");
+// Database
+var connectionString = builder.Configuration.GetConnectionString("BlogConnectionString") 
+    ?? throw new InvalidOperationException("Connection string 'BlogConnectionString' not found.");
 
-builder.Services
-    .AddEntityFrameworkSqlServer()
-    .AddDbContext<BloggingContext>(p => p.UseSqlServer(connectionString));
+builder.Services.AddDbContext<BloggingContext>(options =>
+    options.UseSqlServer(connectionString, sqlOptions =>
+    {
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(5),
+            errorNumbersToAdd: null);
+    })
+    .ConfigureWarnings(warnings => 
+        warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
+// Domain and Business Services
 Domain.Startup.ConfigureServices(builder.Services);
 Business.Startup.ConfigureServices(builder.Services);
 
 var app = builder.Build();
 
-// Migrate the database to the latest version automatically on application startup
-var serviceScopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
-using (var serviceScope = serviceScopeFactory.CreateScope())
-{
-    serviceScope.ServiceProvider.GetService<BloggingContext>().Database.Migrate();
-}
-
+// Configure pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
+    app.MapOpenApi();
 }
 
-app.UseRouting();
-app.UseCors(onlyConfiguredOrigins);
-app.UseAuthorization();
-app.UseResponseCompression();
-
-app.UseEndpoints(endpoints =>
+// Database Migration
+using (var scope = app.Services.CreateScope())
 {
-    endpoints.MapControllers();
-});
+    var context = scope.ServiceProvider.GetRequiredService<BloggingContext>();
+    try
+    {
+        await context.Database.MigrateAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+        
+        // In development, we can continue without migration
+        if (!app.Environment.IsDevelopment())
+        {
+            throw;
+        }
+    }
+}
 
 app.UseHttpsRedirection();
-app.UseSwagger();
-app.UseSwaggerUI();
+app.UseResponseCompression();
 
-app.Run();
+app.UseCors("OnlyConfiguredOrigins");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+await app.RunAsync();
+
+// JSON Serialization Context for AOT
+[JsonSerializable(typeof(object))]
+internal partial class AppJsonSerializerContext : JsonSerializerContext
+{
+}

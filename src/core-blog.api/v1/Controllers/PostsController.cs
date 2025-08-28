@@ -2,6 +2,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Business.Services;
+using Asp.Versioning;
 
 namespace core_blog.api.Controllers
 {
@@ -23,8 +24,8 @@ namespace core_blog.api.Controllers
         [AcceptVerbs("OPTIONS")]
         public IActionResult Options()
         {
-            Response.Headers.Add("Access-Control-Allow-Origin", "*");
-            Response.Headers.Add("Access-Control-Allow-Methods", "GET");
+            Response.Headers["Access-Control-Allow-Origin"] = "*";
+            Response.Headers["Access-Control-Allow-Methods"] = "GET";
             return new StatusCodeResult(200);
         }
 

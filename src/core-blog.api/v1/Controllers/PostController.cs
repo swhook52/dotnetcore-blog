@@ -4,6 +4,7 @@ using Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using AutoMapper;
+using Asp.Versioning;
 
 namespace core_blog.api.Controllers.v1
 {
@@ -25,8 +26,8 @@ namespace core_blog.api.Controllers.v1
         [AcceptVerbs("OPTIONS")]
         public IActionResult Options()
         {
-            Response.Headers.Add("Access-Control-Allow-Origin", "*");
-            Response.Headers.Add("Access-Control-Allow-Methods", "GET,POST,PUT");
+            Response.Headers["Access-Control-Allow-Origin"] = "*";
+            Response.Headers["Access-Control-Allow-Methods"] = "GET,POST,PUT";
             return new StatusCodeResult(200);
         }
 
